@@ -163,7 +163,7 @@ Resources:
             - |
               export LC_ALL=C
             - |
-              pip install "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.20.tar"
+              pip install pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
             - |
               # Install the files and packages from the metadata
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
@@ -177,8 +177,18 @@ Resources:
 
             - |
               # Restart Apache2
-            - |
-              sudo service apache2 restart
+            # - |
+            #   sudo service apache2 restart
+            # - |
+            #   wget https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.20.tar
+            # - |
+            #   sudo tar xf CreateWPBuild-1.0.20.tar -C /var/www/
+            # - |
+            #   sudo chown -R www-data:www-data /var/www/
+            # - |
+            #   sudo sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf
+            # - |
+            #   sudo service apache2 restart
             - |+
 
 #=======Outputs=======
