@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >-
-  AWS CloudFormation Template: Create a stack
+  AWS CloudFormation Template: Create a stack 
   using a single EC2 instance and RDSMySQL database for storage. This
   template demonstrates using the AWS CloudFormation bootstrap scripts to
   install the packages and files necessary to deploy the Apache web server, PHP, Wordpress
