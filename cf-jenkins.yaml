@@ -163,7 +163,7 @@ Resources:
             - |
               export LC_ALL=C
             - |
-              pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+              pip install "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.20.tar"
             - |
               # Install the files and packages from the metadata
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
