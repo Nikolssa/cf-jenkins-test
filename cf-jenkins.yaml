@@ -63,8 +63,8 @@ Parameters:
 
 Mappings:
   RegionMap:
-    eu-west-2:
-      HVM64: ami-061a2d878e5754b62
+    eu-central-1:
+      HVM64: ami-086a09d5b9fa35dc7
 
 #========Resources======
 
@@ -127,7 +127,7 @@ Resources:
               php-mysql: []
               libapache2-mod-php: []
           sources:           #3
-            /var/www: "https://s3.eu-west-2.amazonaws.com/wp-artifact-bucket/CreateWPBuild/CreateWPBuild-1.0.*.tar"
+            /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-bucket/CreateWPBuild/CreateWPBuild-1.0.*.tar"
           commands:          #5
             rootdir:
               command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
