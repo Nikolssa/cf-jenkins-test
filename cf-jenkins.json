@@ -1,0 +1,222 @@
+"TemplateFormatVersion": "2010-09-09",
+    "Description": "AWS CloudFormation Template: Create a stack  using a single EC2 instance and RDSMySQL database for storage. This template demonstrates using the AWS CloudFormation bootstrap scripts to install the packages and files necessary to deploy the Apache web server, PHP, Wordpress and MySQL at instances launch time.",
+    "Parameters": {
+        "KeyName": {
+            "Description": "Key",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        },
+        "VpcId": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "VPC",
+            "ConstraintDescription": "exist VPC"
+        },
+        "InstanceType": {
+            "Description": "WebServer EC2 instance type",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": [
+                "t2.micro"
+            ]
+        },
+        "Subnets": {
+            "Type": "List<AWS::EC2::Subnet::Id>",
+            "Description": "subnets",
+            "ConstraintDescription": "subnets"
+        },
+        "SSHLocation": {
+            "Description": " The IP address range that can be used to SSH to the EC2 instances",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "0.0.0.0/0",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "DBName": {
+            "Default": "wordpress",
+            "Description": "MySQL database name",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBUser": {
+            "NoEcho": "true",
+            "Description": "Username for MySQL database access",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "16",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBPassword": {
+            "NoEcho": "true",
+            "Description": "Password for MySQL database access",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "41",
+            "AllowedPattern": "[a-zA-Z0-9]*",
+            "ConstraintDescription": "must contain only alphanumeric characters."
+        }
+    },
+    "Mappings": {
+        "RegionMap": {
+            "eu-central-1": {
+                "HVM64": "ami-086a09d5b9fa35dc7"
+            }
+        }
+    },
+    "Resources": {
+        "WebServerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Enable ssh + http",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 22,
+                        "ToPort": 22,
+                        "CidrIp": {
+                            "Ref": "SSHLocation"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
+            }
+        },
+        "WebServerInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Metadata": {
+                "Comment": "Configure the bootstrap helpers to install the Apache Web Server, PHP, and Wordpress",
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "Install": [
+                            "Install"
+                        ]
+                    },
+                    "Install": {
+                        "packages": {
+                            "apt": {
+                                "apache2": [],
+                                "php": [],
+                                "php-mysql": [],
+                                "libapache2-mod-php": []
+                            }
+                        },
+                        "sources": {
+                            "/var/www": "https://s3.eu-central-1.amazonaws.com/wp-artifact-bucket/CreateWPBuild/CreateWPBuild-1.0.*.tar"
+                        },
+                        "commands": {
+                            "rootdir": {
+                                "command": "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf",
+                                "cwd": "/var/www/wordpress",
+                                "ignoreErrors": "true"
+                            },
+                            "chown": {
+                                "command": "chown -R www-data:www-data /var/www/"
+                            },
+                            "restart": {
+                                "command": "service apache2 restart"
+                            }
+                        },
+                        "services": {
+                            "sysvinit": {
+                                "apache2": {
+                                    "enabled": "true",
+                                    "ensureRunning": "true",
+                                    "files": [
+                                        "/etc/apache2/apache2.conf"
+                                    ],
+                                    "sources": [
+                                        "/var/www/"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties": {
+                "InstanceType": {
+                    "Ref": "InstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "WebServerSecurityGroup"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "RegionMap",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "HVM64"
+                    ]
+                },
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash -xe\n",
+                                "apt-get update\n",
+                                "apt-get -y install python-pip\n",
+                                "export LC_ALL=C\n",
+                                "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                                "# Install the files and packages from the metadata\n",
+                                "/usr/local/bin/cfn-init",
+                                "         --stack ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "         --resource WebServerInstance ",
+                                "         --configsets Install",
+                                "         --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n",
+                                "# Restart Apache2\n",
+                                "sudo service apache2 restart\n",
+                                "\n"
+                            ]
+                        ]
+                    }
+                }
+            }
+        },
+        "Outputs": {
+            "PublicIp": {
+                "Value": {
+                    "Fn::GetAtt": [
+                        "WebServerInstance",
+                        "PublicIp"
+                    ]
+                },
+                "Description": "Server's PublicIp Address"
+            },
+            "DBEndPoint": {
+                "Description": "Connect to DB instance",
+                "Value": {
+                    "Fn::GetAtt": [
+                        "DB",
+                        "Endpoint.Address"
+                    ]
+                }
+            }
+        }
+    }
+}
