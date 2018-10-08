@@ -126,17 +126,17 @@ Resources:
               php: []
               php-mysql: []
               libapache2-mod-php: []
-          sources:           #3
-            /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.20.tar"
-          commands:          #5
-            rootdir:
-              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
-              cwd: "/var/www/wordpress"
-              ignoreErrors: "true"
-            chown:
-              command: "chown -R www-data:www-data /var/www/"
-            restart:
-              command: "service apache2 restart"
+          #sources:           #3
+          #  /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.20.tar"
+          #commands:          #5
+          #  rootdir:
+          #    command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
+          #    cwd: "/var/www/wordpress"
+          #    ignoreErrors: "true"
+          #  chown:
+          #    command: "chown -R www-data:www-data /var/www/"
+          #  restart:
+          #    command: "service apache2 restart"
           services:          #6
             sysvinit:
               apache2:
@@ -177,8 +177,8 @@ Resources:
 
             - |
               # Restart Apache2
-            # - |
-            #   sudo service apache2 restart
+            - |
+               sudo service apache2 restart
             # - |
             #   wget https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.20.tar
             # - |
