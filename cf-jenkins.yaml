@@ -174,12 +174,24 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
+              # Update the files and packages from the metadata
+            - '/usr/local/bin/cfn-hup'  #'/opt/aws/bin/cfn-init'
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource WebServerInstance '
+            - '         --configsets Install'
+            - '         --region '
+            - '         --no-daemon \'
+            - '         --verbose|-v'
+            - !Ref 'AWS::Region'
+            - |+
+
             - |
               # Restart Apache2
             - |
-              wget ""
+              wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.${LATEST_BUILD}.tar"
             - |
-              tar xf CreateWPBuild
+              sudo tar xf CreateWPBuild-1.0.${LATEST_BUILD}.tar -C /var/www/
             - |
               sudo service apache2 restart
             - |
