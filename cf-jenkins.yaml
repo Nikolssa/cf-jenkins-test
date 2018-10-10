@@ -189,9 +189,9 @@ Resources:
             - |
               # Restart Apache2
             - |
-              wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
+              wget ""
             - |
-              sudo tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
+              sudo tar xf CreateWPBuild
             - |
               sudo service apache2 restart
             - |
