@@ -174,12 +174,11 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
-              # Update the files and packages from the metadata
-            - '/usr/local/bin/cfn-hup'  #'/opt/aws/bin/cfn-init'
+              # Signal the status from cfn-init
+            - '/usr/local/bin/cfn-signal -e $? '
             - '         --stack '
             - !Ref 'AWS::StackName'
             - '         --resource WebServerInstance '
-            - '         --configsets Install'
             - '         --region '
             - !Ref 'AWS::Region'
             - |+
