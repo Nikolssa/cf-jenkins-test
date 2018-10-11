@@ -126,8 +126,36 @@ Resources:
               php: []
               php-mysql: []
               libapache2-mod-php: []
+          files:
+            /etc/cfn/cfn-hup.conf:
+              content: !Join
+                - ''
+                - - |
+                    [main]
+                  - stack=
+                  - !Ref 'AWS::StackId'
+                  - |+
+
+                  - region=
+                  - !Ref 'AWS::Region'
+                  - |+
+
+              mode: '000400'
+              owner: root
+              group: root
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
+                action=/usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --configsets Install --region ${AWS::Region}
+                runas=root
+              mode: "000400"
+              owner: "root"
+              group: "root"
+
           sources:           #3
-            /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar" #"https://ru.wordpress.org/wordpress-4.9.8-ru_RU.tar.gz"
+            /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
           commands:          #5
            rootdir:
              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
@@ -186,10 +214,10 @@ Resources:
             - |
               # Restart Apache2
             - |
-              wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-            - |
-              tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
-            - |
+            #   wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
+            # - |
+            #   tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
+            # - |
               sudo service apache2 restart
             - |
               echo "=================I'm here======================"
