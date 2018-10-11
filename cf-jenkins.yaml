@@ -127,7 +127,7 @@ Resources:
               php-mysql: []
               libapache2-mod-php: []
           files:
-            /etc/cfn/cfn-hup.conf:
+            /usr/local/bin/cfn-hup.conf:
               content: !Join
                 - ''
                 - - |
@@ -143,7 +143,7 @@ Resources:
               mode: '000400'
               owner: root
               group: root
-            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+            /usr/local/bin/hooks.d/cfn-auto-reloader.conf:
               content: !Sub |
                 [cfn-auto-reloader-hook]
                 triggers=post.update
@@ -173,6 +173,12 @@ Resources:
                   - "/etc/apache2/apache2.conf"
                 sources:
                   - "/var/www/"
+              cfn-hup:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - /usr/local/bin/cfn-hup.conf
+                  - /usr/local/bin/hooks.d/cfn-auto-reloader.conf
     Properties:
       InstanceType: !Ref 'InstanceType'
       KeyName: !Ref 'KeyName'
@@ -214,14 +220,14 @@ Resources:
             - |
               # Restart Apache2
             - |
-            #   wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-            # - |
-            #   tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
-            # - |
               sudo service apache2 restart
             - |
               echo "=================I'm here======================"
             - |+
+            #   wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
+            # - |
+            #   tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
+            # - |
 
 #=======Outputs=======
 Outputs:
