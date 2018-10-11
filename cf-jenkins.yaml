@@ -164,6 +164,8 @@ Resources:
              command: "chown -R www-data:www-data /var/www/"
            restart:
              command: "service apache2 restart"
+           createdir:
+             command: "mkdir niko"
           services:          #6
             sysvinit:
               apache2:
