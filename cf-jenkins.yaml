@@ -119,7 +119,9 @@ Resources:
         configSets:
           InstallAndRun:
             - Install
-            - Remove
+            - Check
+            - Download_artifact1
+            - Download_artifact2
             - Configure
         Install:
           packages:          #1
@@ -157,16 +159,22 @@ Resources:
               command: "systemctl enable cfn-hup.service"
             02start_cfn_hup:
               command: "systemctl start cfn-hup.service"
+        Check:
+          commands:
+            just_check:
+              command: "wget https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
+        Download_artifact1:
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-        Remove:
           commands:
             03remove_old_art:
               command: "rm -r wordpress"
               cwd: "/var/www"
-        Configure:
+        Download_artifact2:
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
+          commands:
+        Configure:
           commands:                      #5
             rootdir:
               command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
