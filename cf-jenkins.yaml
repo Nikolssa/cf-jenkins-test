@@ -153,6 +153,16 @@ Resources:
               mode: "000400"
               owner: "root"
               group: "root"
+            /etc/systemd/system/cfn-hup.service:
+              content: |
+                [Unit]
+                Description=Cloud formation helper daemon
+                [Service]
+                ExecStart=/usr/local/bin/cfn-hup
+                Restart=always
+                Type=simple
+                [Install]
+                WantedBy=multi-user.target
 
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
@@ -162,10 +172,11 @@ Resources:
              ignoreErrors: "true"
            chown:
              command: "chown -R www-data:www-data /var/www/"
-           restart:
-             command: "service apache2 restart"
+           rest:
+             command: "sudo service apache2 restart"
            createdir:
              command: "mkdir niko"
+             cwd: "~"
           services:          #6
             sysvinit:
               apache2:
