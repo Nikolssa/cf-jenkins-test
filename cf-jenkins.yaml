@@ -218,9 +218,7 @@ Resources:
               pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
             - |
               apt-get -y install upstart
-            - |
-              sudo apt-get -y install upstart-sysv
-            - |
+            - |            
               sudo ln /usr/local/bin/cfn-hup /etc/init.d/
             - |
               systemctl daemon-reload
