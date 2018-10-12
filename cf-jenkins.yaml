@@ -153,7 +153,7 @@ Resources:
               mode: "000400"
               owner: "root"
               group: "root"
-            /etc/init.d/cfn-hup:
+            /etc/systemd/system/cfn-hup.service:
               content: |
                 [Unit]
                 Description=Cloud formation helper daemon
@@ -172,8 +172,14 @@ Resources:
              ignoreErrors: "true"
            chown:
              command: "chown -R www-data:www-data /var/www/"
-           rest:
+             ignoreErrors: "true"
+           enable-cfn-hup:
+             command: "systemctl enable cfn-hup.service"
+           start-cfn-hup:
+             command: "systemctl start cfn-hup.service"
+           restart:
              command: "sudo service apache2 restart"
+             ignoreErrors: "true"
            createdir:
              command: "mkdir niko"
              cwd: "~"
@@ -186,12 +192,6 @@ Resources:
                   - "/etc/apache2/apache2.conf"
                 sources:
                   - "/var/www/"
-              cfn-hup:
-                enabled: 'true'
-                ensureRunning: 'true'
-                files:
-                  - /etc/cfn/cfn-hup.conf
-                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
     Properties:
       InstanceType: !Ref 'InstanceType'
       KeyName: !Ref 'KeyName'
