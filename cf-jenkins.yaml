@@ -220,6 +220,16 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
+            - |
+              # Restart Apache2
+            - |
+              sudo service apache2 restart
+            - |
+              wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
+            - |
+              echo "=================I'm here======================"
+            - |+
+
               # Signal the status from cfn-init
             - '/usr/local/bin/cfn-signal -e $? '
             - '         --stack '
@@ -229,13 +239,6 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
-            - |
-              # Restart Apache2
-            - |
-              sudo service apache2 restart
-            - |
-              echo "=================I'm here======================"
-            - |+
             #   wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
             # - |
             #   tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
