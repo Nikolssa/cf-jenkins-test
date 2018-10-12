@@ -117,7 +117,7 @@ Resources:
       Comment: Configure the bootstrap helpers to install the Apache Web Server, PHP, and Wordpress
       'AWS::CloudFormation::Init':
         configSets:
-          default:
+          InstallAndRun:
             - Install
             - Configure
         Install:
@@ -129,43 +129,67 @@ Resources:
               libapache2-mod-php: []
           files:
             /etc/cfn/cfn-hup.conf:
-              content: !Join
-                - ''
-                - - |
-                    [main]
-                  - stack=
-                  - !Ref 'AWS::StackId'
-                  - |+
+              content:
+                'Fn::Join':
+                  - ''
+                  - - |
+                      [main]
+                    - stack=
+                    - Ref: 'AWS::StackId'
+                    - |+
 
-                  - region=
-                  - !Ref 'AWS::Region'
-                  - |+
+                    - region=
+                    - Ref: 'AWS::Region'
+                    - |+
 
               mode: '000400'
               owner: root
               group: root
             /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-              content: !Join
-                - ''
-                - - |
-                    [cfn-auto-reloader-hook]
-                  - |
-                    triggers=post.update
-                  - >
-                    path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init
-                  - 'action=/usr/local/bin/cfn-init -v '
-                  - '         --stack '
-                  - !Ref 'AWS::StackName'
-                  - '         --resource WebServerInstance '
-                  - '         --region '
-                  - !Ref 'AWS::Region'
-                  - |+
+                content: !Join
+                  - ''
+                  - - |
+                      [cfn-auto-reloader-hook]
+                    - |
+                      triggers=post.update
+                    - |
+                      path=Resources.EC2Instance.Metadata.AWS::CloudFormation::Init
+                    - 'action=/usr/local/bin/cfn-init -v '
+                    - '         --stack '
+                    - !Ref 'AWS::StackName'
+                    - '         --resource EC2Instance '
+                    - '         --configsets InstallAndRun '
+                    - '         --region '
+                    - !Ref 'AWS::Region'
+                    - |+
 
-                  - |
-                    runas=root
-              mode: '000400'
-              owner: root
-              group: root
+                    - |
+                      runas=root
+            /lib/systemd/system/cfn-hup.service:
+                content: !Join
+                  - ''
+                  - - |
+                      [Unit]
+                    - |+
+                      Description=cfn-hup daemon
+
+                    - |
+                      [Service]
+                    - |
+                      Type=simple
+                    - |
+                      ExecStart=/usr/local/bin/cfn-hup
+                    - |+
+                      Restart=always
+
+                    - |
+                      [Install]
+                    - WantedBy=multi-user.target
+          commands:
+            01enable_cfn_hup:
+              command: "systemctl enable cfn-hup.service"
+            02start_cfn_hup:
+              command: "systemctl start cfn-hup.service"
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
         Configure:
@@ -191,12 +215,6 @@ Resources:
                   - "/etc/apache2/apache2.conf"
                 sources:
                   - "/var/www/"
-              cfn-hup:
-                enabled: 'true'
-                ensureRunning: 'true'
-                files:
-                  - /etc/cfn/cfn-hup.conf
-                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
 
     Properties:
       InstanceType: !Ref 'InstanceType'
@@ -216,25 +234,12 @@ Resources:
               export LC_ALL=C
             - |
               pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-            - |
-              apt-get -y install upstart
-            - |            
-              sudo ln /usr/local/bin/cfn-hup /etc/init.d/
-            - |
-              systemctl daemon-reload
-            - |
-              sudo chmod 700 /etc/init.d/cfn-hup
-            - |
-              sudo chown root:root /etc/init.d/cfn-hup
-            - |
-              sudo update-rc.d cfn-hup defaults
-            - |
-              sudo update-rc.d cfn-hup enable
               # Install the files and packages from the metadata
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
             - '         --stack '
             - !Ref 'AWS::StackName'
             - '         --resource WebServerInstance '
+            - '         --configsets InstallAndRun '
             - '         --region '
             - !Ref 'AWS::Region'
             - |+
