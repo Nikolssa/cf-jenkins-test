@@ -117,7 +117,7 @@ Resources:
       Comment: Configure the bootstrap helpers to install the Apache Web Server, PHP, and Wordpress
       'AWS::CloudFormation::Init':
         configSets:
-          InstallAndRun:
+          default:
             - Install
             - Configure
         Install:
@@ -128,7 +128,7 @@ Resources:
               php-mysql: []
               libapache2-mod-php: []
           files:
-            /etc/cfn-hup.conf:
+            /etc/cfn/cfn-hup.conf:
               content: !Join
                 - ''
                 - - |
@@ -144,7 +144,7 @@ Resources:
               mode: '000400'
               owner: root
               group: root
-            /etc/hooks.d/cfn-auto-reloader.conf:
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
               content: !Join
                 - ''
                 - - |
@@ -157,7 +157,6 @@ Resources:
                   - '         --stack '
                   - !Ref 'AWS::StackName'
                   - '         --resource WebServerInstance '
-                  - '         --configsets InstallAndRun '
                   - '         --region '
                   - !Ref 'AWS::Region'
                   - |+
@@ -196,8 +195,8 @@ Resources:
                 enabled: 'true'
                 ensureRunning: 'true'
                 files:
-                  - /etc/cfn-hup.conf
-                  - /etc/hooks.d/cfn-auto-reloader.conf
+                  - /etc/cfn/cfn-hup.conf
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
 
     Properties:
       InstanceType: !Ref 'InstanceType'
@@ -218,13 +217,23 @@ Resources:
             - |
               pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
             - |
+              sudo ln /usr/local/bin/cfn-hup /etc/init.d/
+            - |
+              sudo initctl reload-configuration
+            - |
+              sudo chmod 700 /etc/init.d/cfn-hup
+            - |
+              sudo chown root:root /etc/init.d/cfn-hup
+            - |
+              sudo update-rc.d cfn-hup defaults
+            - |
+              sudo update-rc.d cfn-hup enable
               # Install the files and packages from the metadata
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
             - '         --stack '
             - !Ref 'AWS::StackName'
             - '         --resource WebServerInstance '
-            - '         --configsets InstallAndRun '
-            - '         --region '
+                        - '         --region '
             - !Ref 'AWS::Region'
             - |+
 
