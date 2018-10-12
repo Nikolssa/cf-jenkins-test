@@ -153,7 +153,7 @@ Resources:
               mode: "000400"
               owner: "root"
               group: "root"
-            /etc/systemd/system/cfn-hup.service:
+            /etc/init.d/cfn-hup:
               content: |
                 [Unit]
                 Description=Cloud formation helper daemon
