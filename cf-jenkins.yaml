@@ -117,7 +117,7 @@ Resources:
       Comment: Configure the bootstrap helpers to install the Apache Web Server, PHP, and Wordpress
       'AWS::CloudFormation::Init':
         configSets:
-          Install:
+          default:
             - Install
         Install:
           packages:          #1
