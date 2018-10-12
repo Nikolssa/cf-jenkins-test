@@ -244,14 +244,14 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
-              # Signal the status from cfn-init
-            - '/usr/local/bin/cfn-signal -e $? '
-            - '         --stack '
-            - !Ref 'AWS::StackName'
-            - '         --resource WebServerInstance '
-            - '         --region '
-            - !Ref 'AWS::Region'
-            - |+
+            #   # Signal the status from cfn-init
+            # - '/usr/local/bin/cfn-signal -e $? '
+            # - '         --stack '
+            # - !Ref 'AWS::StackName'
+            # - '         --resource WebServerInstance '
+            # - '         --region '
+            # - !Ref 'AWS::Region'
+            # - |+
 
               # Restart Apache2
             - |
