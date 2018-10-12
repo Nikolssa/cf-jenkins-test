@@ -197,15 +197,15 @@ Resources:
             rootdir:
               command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
               ignoreErrors: "true"
+            createdir:
+              command: "mkdir niko"
+              cwd: "~"
             chown:
               command: "chown -R www-data:www-data /var/www/"
               ignoreErrors: "true"
             restart:
-              command: "sudo service apache2 restart"
-              ignoreErrors: "true"
-            createdir:
-              command: "mkdir niko"
-              cwd: "~"
+              command: "service apache2 restart"
+              ignoreErrors: "true"              
           services:          #6
             sysvinit:
               apache2:
@@ -234,6 +234,7 @@ Resources:
               export LC_ALL=C
             - |
               pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+            - |
               # Install the files and packages from the metadata
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
             - '         --stack '
@@ -244,22 +245,13 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
-            #   # Signal the status from cfn-init
-            # - '/usr/local/bin/cfn-signal -e $? '
-            # - '         --stack '
-            # - !Ref 'AWS::StackName'
-            # - '         --resource WebServerInstance '
-            # - '         --region '
-            # - !Ref 'AWS::Region'
-            # - |+
-
-              # Restart Apache2
-            - |
-              sudo service apache2 restart
-            - |
-              wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-            - |
-              echo "=================I'm here======================"
+              # Signal the status from cfn-init
+            - '/usr/local/bin/cfn-signal -e $? '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource WebServerInstance '
+            - '         --region '
+            - !Ref 'AWS::Region'
             - |+
 
 #=======Outputs=======
