@@ -173,7 +173,6 @@ Resources:
         Download_artifact2:
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-          commands:
         Configure:
           commands:                      #5
             rootdir:
