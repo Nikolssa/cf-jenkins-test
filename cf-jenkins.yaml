@@ -190,22 +190,19 @@ Resources:
               command: "systemctl enable cfn-hup.service"
             02start_cfn_hup:
               command: "systemctl start cfn-hup.service"
+            03remove_old_art:
+              command: "rm -r wordpress"
+              cwd: "/var/www/"
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
         Configure:
           commands:          #5
             rootdir:
-              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
-              ignoreErrors: "true"
-            createdir:
-              command: "mkdir niko"
-              cwd: "~"
+              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"              
             chown:
               command: "chown -R www-data:www-data /var/www/"
-              ignoreErrors: "true"
             restart:
               command: "service apache2 restart"
-              ignoreErrors: "true"              
           services:          #6
             sysvinit:
               apache2:
