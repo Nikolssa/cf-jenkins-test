@@ -193,12 +193,12 @@ Resources:
             03remove_old_art:
               command: "rm -r wordpress"
               cwd: "/var/www/"
+        Configure:
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-        Configure:
           commands:          #5
             rootdir:
-              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"              
+              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
             chown:
               command: "chown -R www-data:www-data /var/www/"
             restart:
