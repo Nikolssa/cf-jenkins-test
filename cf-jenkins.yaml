@@ -127,7 +127,7 @@ Resources:
               php-mysql: []
               libapache2-mod-php: []
           files:
-            /usr/local/bin/cfn-hup.conf:
+            /etc/cfn/cfn-hup.conf:
               content: !Join
                 - ''
                 - - |
@@ -143,12 +143,12 @@ Resources:
               mode: '000400'
               owner: root
               group: root
-            /usr/local/bin/hooks.d/cfn-auto-reloader.conf:
+            /etc/cfn/hooks.d/cfn-auto-reload.conf:
               content: !Sub |
                 [cfn-auto-reloader-hook]
                 triggers=post.update
                 path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
-                action=/usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --configsets Install --region ${AWS::Region}
+                action=/usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
                 runas=root
               mode: "000400"
               owner: "root"
@@ -179,8 +179,8 @@ Resources:
                 enabled: 'true'
                 ensureRunning: 'true'
                 files:
-                  - /usr/local/bin/cfn-hup.conf
-                  - /usr/local/bin/hooks.d/cfn-auto-reloader.conf
+                  - /etc/cfn/cfn-hup.conf
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
     Properties:
       InstanceType: !Ref 'InstanceType'
       KeyName: !Ref 'KeyName'
@@ -204,8 +204,7 @@ Resources:
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
             - '         --stack '
             - !Ref 'AWS::StackName'
-            - '         --resource WebServerInstance '
-            - '         --configsets Install'
+            - '         --resource WebServerInstance '             #- '         --configsets Install'
             - '         --region '
             - !Ref 'AWS::Region'
             - |+
