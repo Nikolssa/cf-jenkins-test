@@ -173,7 +173,7 @@ Resources:
             chown:
               command: "chown -R www-data:www-data /var/www/"
             restart:
-              command: "service apache2 restart"
+              command: "sudo service apache2 restart"
           services:          #6
             sysvinit:
               apache2:
@@ -220,6 +220,10 @@ Resources:
             - '         --resource WebServerInstance '
             - '         --region '
             - !Ref 'AWS::Region'
+            - |+
+
+            - |
+              sudo service apache2 Restart
             - |+
 
 #=======Outputs=======
