@@ -129,63 +129,29 @@ Resources:
               php-mysql: []
               libapache2-mod-php: []
           files:
-            /etc/cfn/cfn-hup.conf:
-              content:
-                'Fn::Join':
-                  - ''
-                  - - |
-                      [main]
-                    - stack=
-                    - Ref: 'AWS::StackId'
-                    - |+
-
-                    - region=
-                    - Ref: 'AWS::Region'
-                    - |+
-
-              mode: '000400'
-              owner: root
-              group: root
-            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
-                content: !Join
-                  - ''
-                  - - |
-                      [cfn-auto-reloader-hook]
-                    - |
-                      triggers=post.update
-                    - |
-                      path=Resources.EC2Instance.Metadata.AWS::CloudFormation::Init
-                    - 'action=/usr/local/bin/cfn-init -v '
-                    - '         --stack '
-                    - !Ref 'AWS::StackName'
-                    - '         --resource EC2Instance '
-                    - '         --configsets InstallAndRun '
-                    - '         --region '
-                    - !Ref 'AWS::Region'
-                    - |+
-
-                    - |
-                      runas=root
-            /lib/systemd/system/cfn-hup.service:
-                content: !Join
-                  - ''
-                  - - |
-                      [Unit]
-                    - |+
-                      Description=cfn-hup daemon
-
-                    - |
-                      [Service]
-                    - |
-                      Type=simple
-                    - |
-                      ExecStart=/usr/local/bin/cfn-hup
-                    - |+
-                      Restart=always
-
-                    - |
-                      [Install]
-                    - WantedBy=multi-user.target
+            '/etc/cfn/cfn-hup.conf':
+              content: !Sub |
+                [main]
+                stack=${AWS::StackId}
+                region=${AWS::Region}
+                interval=1
+            '/etc/cfn/hooks.d/cfn-auto-reload.conf':
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.Web.Metadata.AWS::CloudFormation::Init
+                action=/usr/local/bin/cfn-init -v --stack ${AWS::StackId} --resource Web --region ${AWS::Region}
+                runas=root
+            '/etc/systemd/system/cfn-hup.service': #/lib/
+              content: !Sub |
+                [Unit]
+                Description=Cloud formation helper daemon
+                [Service]
+                ExecStart=/usr/local/bin/cfn-hup
+                Restart=always
+                Type=simple
+                [Install]
+                WantedBy=multi-user.target
           commands:
             01enable_cfn_hup:
               command: "systemctl enable cfn-hup.service"
