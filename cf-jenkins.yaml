@@ -223,6 +223,12 @@ Resources:
             - |+
 
             - |
+              rm -r /var/www/wordpress
+            - |
+              wget https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar
+            - |
+              sudo tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
+            - |
               sudo service apache2 Restart
             - |+
 
