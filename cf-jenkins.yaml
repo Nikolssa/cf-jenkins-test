@@ -128,7 +128,7 @@ Resources:
               php-mysql: []
               libapache2-mod-php: []
           files:
-            /etc/cfn/cfn-hup.conf:
+            /etc/cfn-hup.conf:
               content: !Join
                 - ''
                 - - |
@@ -144,7 +144,7 @@ Resources:
               mode: '000400'
               owner: root
               group: root
-            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+            /etc/hooks.d/cfn-auto-reloader.conf:
               content: !Join
                 - ''
                 - - |
@@ -169,21 +169,6 @@ Resources:
               group: root
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-          services:          #6
-            sysvinit:
-              apache2:
-                enabled: 'true'
-                ensureRunning: 'true'
-                files:
-                  - "/etc/apache2/apache2.conf"
-                sources:
-                  - "/var/www/"
-              cfn-hup:
-                enabled: 'true'
-                ensureRunning: 'true'
-                files:
-                  - /etc/cfn/cfn-hup.conf
-                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
         Configure:
           commands:          #5
             rootdir:
@@ -198,6 +183,22 @@ Resources:
             createdir:
               command: "mkdir niko"
               cwd: "~"
+          services:          #6
+            sysvinit:
+              apache2:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - "/etc/apache2/apache2.conf"
+                sources:
+                  - "/var/www/"
+              cfn-hup:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - /etc/cfn-hup.conf
+                  - /etc/hooks.d/cfn-auto-reloader.conf
+
     Properties:
       InstanceType: !Ref 'InstanceType'
       KeyName: !Ref 'KeyName'
@@ -236,7 +237,6 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
-            - |
               # Restart Apache2
             - |
               sudo service apache2 restart
@@ -245,7 +245,6 @@ Resources:
             - |
               echo "=================I'm here======================"
             - |+
-
 
 #=======Outputs=======
 Outputs:
