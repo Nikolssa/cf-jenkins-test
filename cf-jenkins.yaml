@@ -219,7 +219,7 @@ Resources:
             - |
               sudo ln /usr/local/bin/cfn-hup /etc/init.d/
             - |
-              sudo initctl reload-configuration
+              systemctl daemon-reload
             - |
               sudo chmod 700 /etc/init.d/cfn-hup
             - |
@@ -233,7 +233,7 @@ Resources:
             - '         --stack '
             - !Ref 'AWS::StackName'
             - '         --resource WebServerInstance '
-                        - '         --region '
+            - '         --region '
             - !Ref 'AWS::Region'
             - |+
 
