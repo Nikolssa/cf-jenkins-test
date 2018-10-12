@@ -117,8 +117,9 @@ Resources:
       Comment: Configure the bootstrap helpers to install the Apache Web Server, PHP, and Wordpress
       'AWS::CloudFormation::Init':
         configSets:
-          default:
+          InstallAndRun:
             - Install
+            - Configure
         Install:
           packages:          #1
             apt:
@@ -143,46 +144,31 @@ Resources:
               mode: '000400'
               owner: root
               group: root
-            /etc/cfn/hooks.d/cfn-auto-reload.conf:
-              content: !Sub |
-                [cfn-auto-reloader-hook]
-                triggers=post.update
-                path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
-                action=/usr/local/bin/cfn-init -v --stack ${AWS::StackName} --resource WebServerInstance --region ${AWS::Region}
-                runas=root
-              mode: "000400"
-              owner: "root"
-              group: "root"
-            /etc/systemd/system/cfn-hup.service:
-              content: |
-                [Unit]
-                Description=Cloud formation helper daemon
-                [Service]
-                ExecStart=/usr/local/bin/cfn-hup
-                Restart=always
-                Type=simple
-                [Install]
-                WantedBy=multi-user.target
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Join
+                - ''
+                - - |
+                    [cfn-auto-reloader-hook]
+                  - |
+                    triggers=post.update
+                  - >
+                    path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init
+                  - 'action=/usr/local/bin/cfn-init -v '
+                  - '         --stack '
+                  - !Ref 'AWS::StackName'
+                  - '         --resource WebServerInstance '
+                  - '         --configsets InstallAndRun '
+                  - '         --region '
+                  - !Ref 'AWS::Region'
+                  - |+
 
+                  - |
+                    runas=root
+              mode: '000400'
+              owner: root
+              group: root
           sources:           #3
             /var/www: "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-          commands:          #5
-           rootdir:
-             command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
-             ignoreErrors: "true"
-           chown:
-             command: "chown -R www-data:www-data /var/www/"
-             ignoreErrors: "true"
-           enable-cfn-hup:
-             command: "systemctl enable cfn-hup.service"
-           start-cfn-hup:
-             command: "systemctl start cfn-hup.service"
-           restart:
-             command: "sudo service apache2 restart"
-             ignoreErrors: "true"
-           createdir:
-             command: "mkdir niko"
-             cwd: "~"
           services:          #6
             sysvinit:
               apache2:
@@ -192,6 +178,26 @@ Resources:
                   - "/etc/apache2/apache2.conf"
                 sources:
                   - "/var/www/"
+              cfn-hup:
+                enabled: 'true'
+                ensureRunning: 'true'
+                files:
+                  - /etc/cfn/cfn-hup.conf
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
+        Configure:
+          commands:          #5
+            rootdir:
+              command: "sed -i 's/html/wordpress/' /etc/apache2/sites-available/000-default.conf"
+              ignoreErrors: "true"
+            chown:
+              command: "chown -R www-data:www-data /var/www/"
+              ignoreErrors: "true"
+            restart:
+              command: "sudo service apache2 restart"
+              ignoreErrors: "true"
+            createdir:
+              command: "mkdir niko"
+              cwd: "~"
     Properties:
       InstanceType: !Ref 'InstanceType'
       KeyName: !Ref 'KeyName'
@@ -215,7 +221,17 @@ Resources:
             - '/usr/local/bin/cfn-init'  #'/opt/aws/bin/cfn-init'
             - '         --stack '
             - !Ref 'AWS::StackName'
-            - '         --resource WebServerInstance '             #- '         --configsets Install'
+            - '         --resource WebServerInstance '
+            - '         --configsets InstallAndRun '
+            - '         --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+              # Signal the status from cfn-init
+            - '/usr/local/bin/cfn-signal -e $? '
+            - '         --stack '
+            - !Ref 'AWS::StackName'
+            - '         --resource WebServerInstance '
             - '         --region '
             - !Ref 'AWS::Region'
             - |+
@@ -230,19 +246,6 @@ Resources:
               echo "=================I'm here======================"
             - |+
 
-              # Signal the status from cfn-init
-            - '/usr/local/bin/cfn-signal -e $? '
-            - '         --stack '
-            - !Ref 'AWS::StackName'
-            - '         --resource WebServerInstance '
-            - '         --region '
-            - !Ref 'AWS::Region'
-            - |+
-
-            #   wget "https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar"
-            # - |
-            #   tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
-            # - |
 
 #=======Outputs=======
 Outputs:
