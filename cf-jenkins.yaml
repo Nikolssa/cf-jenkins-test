@@ -230,6 +230,8 @@ Resources:
             - |+
 
             - |
+              # Restart Apache
+            - |
               sudo service apache2 restart
             - |+
 
@@ -238,6 +240,6 @@ Outputs:
   PublicIp:
     Value: !GetAtt [WebServerInstance, PublicIp]
     Description: Server's PublicIp Address
-#  DBEndPoint:
-#    Description: Connect to DB instance
-#    Value: !GetAtt [DB, Endpoint.Address]
+  DBEndPoint:
+    Description: Connect to DB instance
+    Value: !GetAtt [DB, Endpoint.Address]
