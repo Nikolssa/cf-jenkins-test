@@ -83,34 +83,34 @@ Resources:
         ToPort: 80
         CidrIp: 0.0.0.0/0
       VpcId: !Ref 'VpcId'
-#  DBSecurityGroup:              #DBSecurityGroup
-#    Type: AWS::EC2::SecurityGroup
-#    Properties:
-#      GroupDescription: Open port 3306
-#      SecurityGroupIngress:
-#      - IpProtocol: tcp
-#        FromPort: '3306'
-#        ToPort: '3306'
-#        SourceSecurityGroupId: !Ref 'WebServerSecurityGroup'
-#      VpcId: !Ref VpcId
-#  DBSubnetGroup:                #DBSubnetGroup
-#    Type: AWS::RDS::DBSubnetGroup
-#    Properties:
-#      DBSubnetGroupDescription: subnets
-#      SubnetIds: !Ref Subnets
-#  DB:                           #RDSMySQLInstance
-#    Type: AWS::RDS::DBInstance
-#    Properties:
-#      DBName: !Ref 'DBName'
-#      AllocatedStorage: '20'
-#      DBInstanceClass: db.t2.micro
-#      Engine: MySQL
-#      EngineVersion: 5.6.39
-#      MasterUsername: !Ref 'DBUser'
-#      MasiterUserPassword: !Ref 'DBPassword'
-#      DBSubnetGroupName: !Ref 'DBSubnetGroup'
-#      MultiAZ: false
-#      VPCSecurityGroups: [!GetAtt [DBSecurityGroup, GroupId]]
+ DBSecurityGroup:              #DBSecurityGroup
+   Type: AWS::EC2::SecurityGroup
+   Properties:
+     GroupDescription: Open port 3306
+     SecurityGroupIngress:
+     - IpProtocol: tcp
+       FromPort: '3306'
+       ToPort: '3306'
+       SourceSecurityGroupId: !Ref 'WebServerSecurityGroup'
+     VpcId: !Ref VpcId
+ DBSubnetGroup:                #DBSubnetGroup
+   Type: AWS::RDS::DBSubnetGroup
+   Properties:
+     DBSubnetGroupDescription: subnets
+     SubnetIds: !Ref Subnets
+ DB:                           #RDSMySQLInstance
+   Type: AWS::RDS::DBInstance
+   Properties:
+     DBName: !Ref 'DBName'
+     AllocatedStorage: '20'
+     DBInstanceClass: db.t2.micro
+     Engine: MySQL
+     EngineVersion: 5.6.39
+     MasterUsername: !Ref 'DBUser'
+     MasiterUserPassword: !Ref 'DBPassword'
+     DBSubnetGroupName: !Ref 'DBSubnetGroup'
+     MultiAZ: false
+     VPCSecurityGroups: [!GetAtt [DBSecurityGroup, GroupId]]
   WebServerInstance:            #WebServerInstance
     Type: AWS::EC2::Instance
     Metadata:
@@ -230,13 +230,7 @@ Resources:
             - |+
 
             - |
-              rm -r /var/www/wordpress
-            - |
-              wget https://s3.eu-central-1.amazonaws.com/wp-artifact-frankfurt/CreateWPBuild/CreateWPBuild-1.0.BUILD_NUMBER.tar
-            - |
-              sudo tar xf CreateWPBuild-1.0.BUILD_NUMBER.tar -C /var/www/
-            - |
-              sudo service apache2 Restart
+              sudo service apache2 restart
             - |+
 
 #=======Outputs=======
