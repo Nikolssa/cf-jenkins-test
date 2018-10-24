@@ -107,7 +107,7 @@ Resources:
       Engine: MySQL
       EngineVersion: 5.6.39
       MasterUsername: !Ref 'DBUser'
-      MasiterUserPassword: !Ref 'DBPassword'
+      MasterUserPassword: !Ref 'DBPassword'
       DBSubnetGroupName: !Ref 'DBSubnetGroup'
       MultiAZ: false
       VPCSecurityGroups: [!GetAtt [DBSecurityGroup, GroupId]]
